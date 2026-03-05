@@ -4,6 +4,7 @@ function slugify(title = "") {
   return title
     .toLowerCase()
     .trim()
+    
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Unicode_property_escapes
     // \p{L} = alle bokstaver, \p{N} = alle tall, + = en eller flere av det foregående, g = globalt (alle treff), u = unicode
     .replace(/[^\p{L}\p{N}]+/gu, "-")
