@@ -4,7 +4,10 @@ function slugify(title = "") {
   return title
     .toLowerCase()
     .trim()
-    .replace(/[^\p{L}\p{N}]+/gu, "-") // bokstaver/tall -> bindestrek på alt annet
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Unicode_property_escapes
+    // \p{L} = alle bokstaver, \p{N} = alle tall, + = en eller flere av det foregående, g = globalt (alle treff), u = unicode
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    // Fjern eventuelle bindestreker i starten eller slutten av strengen (f.eks. hvis tittelen starter eller slutter med spesialtegn)
     .replace(/(^-|-$)/g, "")
 }
 

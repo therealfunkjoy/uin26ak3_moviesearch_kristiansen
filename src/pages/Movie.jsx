@@ -23,6 +23,7 @@ export default function Movie() {
           return
         }
 
+        // Hent filmdata fra OMDb API ved hjelp av imdbID.
         const res = await fetch(
           `https://www.omdbapi.com/?apikey=${import.meta.env.VITE_OMDB_API_KEY}&i=${encodeURIComponent(imdbID)}&plot=full`
         )
