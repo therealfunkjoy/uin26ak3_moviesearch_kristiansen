@@ -9,6 +9,8 @@ export default function Movie() {
   const [movie, setMovie] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+
+  const apiKey = import.meta.env.VITE_OMDB_API_KEY
   
 
   useEffect(() => {

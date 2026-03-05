@@ -52,15 +52,12 @@
 
 /* Search */
 .search{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:10px;
-  align-items:center;
+  position: relative;
 }
 
 .search__input{
   width:100%;
-  padding:12px;
+  padding:12px 44px 12px 12px; /* plass til ikon til høyre */
   border-radius:12px;
   border:1px solid var(--border);
   background:#fff;
@@ -69,17 +66,25 @@
 }
 
 .search__input:focus{
-  border:2px solid var(--yellow);
+  border-color: var(--yellow);
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
 }
 
 .search__button{
-  padding:12px 14px;
-  border-radius:12px;
-  border:1px solid var(--yellow);
-  background:#121212;
-  color:var(--text);
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform: translateY(-50%);
+  border:0;
+  background:transparent;
   cursor:pointer;
-  font-weight:700;
+  padding:.5rem;
+  color:#6b7280;
+}
+
+.search__button:hover{
+  color:#111;
 }
 
 .sr-only{

@@ -31,6 +31,8 @@ export default function Home() {
 
 
 // Hent defaultliste (minst 10) James Bond-filmer når siden laster
+// Promise.all brukes for å gjøre flere fetch-kall parallelt, 
+// og vi venter på at alle skal bli ferdige før vi oppdaterer state med resultatene.
   useEffect(() => {
   const fetchDefaultMovies = async () => {
     try {
