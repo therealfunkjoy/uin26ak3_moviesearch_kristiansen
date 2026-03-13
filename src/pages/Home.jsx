@@ -1,10 +1,14 @@
+// Viser forsiden i applikasjonen
+// Henter og viser en standardliste med James Bond-filmer før brukeren søker
+// Leser søk fra URL og viser søkeresultater fra OMDb API
+
 import { useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import MovieList from "../components/MovieList"
 
 // Liste over IMDb-ID-er for James Bond-filmene, brukt for å hente default-liste på Home-siden.
 // Det kom opp mye rart med søk på "James Bond" i OMDb,
-// så jeg valgte å hardkode en liste med kjente Bond-filmer for å sikre at det alltid vises relevante resultater før søk.
+// derfor jeg valgte å hardkode en liste med kjente Bond-filmer for å sikre at det alltid vises relevante resultater før søk.
 const BOND_IDS = [
   "tt2382320", // No Time to Die (2021)
   "tt2379713", // Spectre (2015)
@@ -19,12 +23,18 @@ const BOND_IDS = [
 ]
 
 export default function Home() {
-  const [movies, setMovies] = useState([]) // søkresultater
-  const [defaultMovies, setDefaultMovies] = useState([]) // bond
+
+  // State for filmer hentet fra søk
+  const [movies, setMovies] = useState([])
+  // State for standardliste (Bond-filmer)
+  const [defaultMovies, setDefaultMovies] = useState([])
+  // State for å holde kontroll på om det er gjort søk eller ikke
   const [hasSearched, setHasSearched] = useState(false)
+  // State for feilmeldinger ved henting av data
+  const [error, setError] = useState("")
   // Henter api-nøkkel fra .env og gjør den tilgjengelig i koden. Vite bruker import.meta.env for dette.
   const apiKey = import.meta.env.VITE_OMDB_API_KEY
-
+  // Leser query parameter "q" fra URL for å vite hva som skal søkes etter.
   const [searchParams] = useSearchParams()
   const qFromUrl = searchParams.get("q") || ""
 
@@ -32,10 +42,11 @@ export default function Home() {
 
 // Hent defaultliste (minst 10) James Bond-filmer når siden laster
 // Promise.all brukes for å gjøre flere fetch-kall parallelt, 
-// og vi venter på at alle skal bli ferdige før vi oppdaterer state med resultatene.
+// vi venter på at alle skal bli ferdige før vi oppdaterer state med resultatene.
   useEffect(() => {
   const fetchDefaultMovies = async () => {
     try {
+      setError("")
       const responses = await Promise.all(
         BOND_IDS.map((id) =>
           fetch(`https://www.omdbapi.com/?i=${id}&apikey=${apiKey}`).then((res) =>
@@ -44,10 +55,11 @@ export default function Home() {
         )
       )
 
-      // filer bort evt. feilrespons
+      // Filtrer ut eventuelle feil-responser før state oppdateres
       setDefaultMovies(responses.filter((m) => m.Response !== "False"))
     } catch (err) {
       console.error(err)
+      setError("Noe gikk galt ved innlastning av default-filmer.")
     }
   }
 
@@ -56,27 +68,35 @@ export default function Home() {
 
 
 // Hent søk fra URL og gjør søk når q i URL endrer seg
+// Hvis bruker har skrevet færre enn 3 tegn, vis default-listen (Bond) i stedet for søk
 useEffect(() => {
   const q = qFromUrl.trim()
 
-  // Hvis ingen query i URL, vis default (Bond)
   if (q.length < 3) {
     setHasSearched(false)
     setMovies([])
     return
   }
 
-  // Hvis query finnes, gjør søk
   const fetchSearch = async () => {
     setHasSearched(true)
     try {
+      setError("")
       const res = await fetch(
         `https://www.omdbapi.com/?s=${encodeURIComponent(q)}&apikey=${apiKey}`
       )
       const data = await res.json()
-      setMovies(data.Search || [])
+
+      // Hvis APIet ikke finner treff, lagres en tom liste i state
+      if (data.Response === "False") {
+        setMovies([])
+      } else {
+        setMovies(data.Search || [])
+      }
+          
     } catch (err) {
       console.error(err)
+      setError("Noe gikk galt ved søk.")
     }
   }
 
@@ -84,34 +104,36 @@ useEffect(() => {
 }, [qFromUrl, apiKey])
 
 
-
+// Fjerner duplikater fra søkeresultat ved å bruke imdbId som unik nøkkel.
 const uniqueMovies = Array.from(new Map(movies.map((m) => [m.imdbID, m])).values())
+// Brukes for å vise feilmelding om dersom brukeren har søkt, men fikk ikke treff
 const showEmpty = hasSearched && uniqueMovies.length === 0
 
-// Vis Bond-lista igjen hvis søk ga 0 treff (samtidig som vi kan vise feilmelding)
+// Vis Bond-lista igjen hvis søk ga 0 treff
 const moviesToShow = showEmpty
   ? defaultMovies
   : (hasSearched ? uniqueMovies : defaultMovies)
 
+// Setter riktig overskrift basert på hva som vises i listen
 const listTitle = showEmpty
   ? "James Bond-filmer"
   : (hasSearched ? "Resultater" : "James Bond-filmer")
 
-
-
-
-// Henter data fra api og viser enten søkresultater eller defaultliste (Bond).
-// Avhengig av om det er gjort et søk eller ikke. Hvis søk ga 0 treff, vises defaultlisten igjen
+// Rendrer forsiden av appen
+// Viser også feilmelding om søket ikke ga treff
+// Viser søkereultater eller default-listen
    return (
-  <> 
     <main className="container">
     {qFromUrl.trim().length >= 3 && (
-      <Link className="backlink" to="/">← Tilbake</Link>
+      <Link className="backlink" to="/">Tilbake</Link>
+    )}
+
+    {error && <p role="alert">{error}</p>}
+    {showEmpty && (
+      <p className="empty">Ingen filmer funnet, men sjekk gjerne ut James Bond.</p>
     )}
 
     <MovieList movies={moviesToShow} title={listTitle} />
-    {showEmpty && <p className="empty">Ingen filmer funnet.</p>}
   </main>
-  </>
 ) 
 }

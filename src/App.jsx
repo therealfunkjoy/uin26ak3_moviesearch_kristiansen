@@ -1,3 +1,8 @@
+//  Definerer routene i applikasjonen
+//  Bruker Layout som felles struktur rundt sidene
+//  Inneholder både forside og dynamisk rute for valgt film
+
+
 import "./App.css"
 import { Route, Routes } from "react-router-dom"
 import Layout from "./components/Layout"
@@ -9,7 +14,7 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<Home />} />
-        <Route path="/:movie" element={<Movie />} />
+        <Route path="/:movie/:imdbID" element={<Movie />} />
       </Route>
     </Routes>
   )

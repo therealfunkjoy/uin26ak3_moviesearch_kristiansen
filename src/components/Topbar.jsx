@@ -1,7 +1,10 @@
+// Viser toppnavigasjonen i appen
+// Inneholder logo og søkefelt for filmer
+// Sender søket videre til Home-siden via URL-parametere
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react"
 
-// En enkel Search-ikon-komponent som vi kan gjenbruke i både Topbar og Movie-siden.
+  // En enkel Search-ikon-komponent som vi kan gjenbruke i både Topbar og Movie-siden.
   // SVG-en er hentet fra https://feathericons.com/?query=search
   // Støtter tilgjengelighet
   function SearchIcon(props) {
@@ -27,12 +30,15 @@ import { useState } from "react"
 
 
 export default function Topbar() {
+  // State for søketeksten i inputfeltet
   const [q, setQ] = useState("")
 
-  // useNavigate er en hook som gir oss en funksjon for å programmatiskt navigere til en annen URL.
+  // Hook fra React Router som lar oss navigere til en ny URL fra kode
   // https://reactrouter.com/api/hooks/useNavigate
   const navigate = useNavigate()
 
+  // Håndterer innsending av søkeskjemaet
+  // Søket trigges bare hvis brukeren har skrevet minst 3 tegn
   const onSubmit = (e) => {
     e.preventDefault()
     const trimmed = q.trim()
@@ -40,8 +46,8 @@ export default function Topbar() {
     navigate(`/?q=${encodeURIComponent(trimmed)}`)
   }
 
-  
-
+  // Renderer toppnavigasjonen med logo og søkefelt.
+  // Søket sendes til Home-siden via query-parameter i URL-en.
   return (
     <header className="topbar">
       <nav className="topbar__inner" aria-label="Hovedmeny og søk">
